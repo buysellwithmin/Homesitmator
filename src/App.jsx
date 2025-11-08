@@ -520,3 +520,43 @@ const HomePriceEstimator = () => {
 >
   {loading ? 'Loading...' : 'Submit'}
 </button>
+        <div className="flex justify-center mb-6">
+          <button
+            onClick={handleEstimate}
+            disabled={loading}
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg"
+          >
+            {loading ? 'Loading...' : 'Submit'}
+          </button>
+        </div>
+
+        {result && (
+          <div id="results" className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+            <h2 className="text-xl font-bold mb-4 text-gray-800">Results</h2>
+            {result.comparisons.map((comp, i) => (
+              <div key={i} className="mb-4 border-b pb-4 last:border-0">
+                <h3 className="font-semibold text-gray-700 mb-2">{comp.label}: {comp.address}</h3>
+                <p className="text-gray-600">Original Price: {formatCurrency(comp.originalPrice)}</p>
+                <p className="text-gray-600">Adjusted Price: {formatCurrency(comp.adjustedPrice)}</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 mt-2">
+                  {comp.adjustments.map((adj, j) => (
+                    <li key={j}>
+                      <span className="font-medium">{adj.item}:</span> {adj.detail} → {adj.adjustment > 0 ? '+' : ''}{formatCurrency(adj.adjustment)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            <div className="mt-4 p-4 bg-green-50 rounded-lg text-center">
+              <h3 className="text-lg font-bold text-green-700">
+                Final Estimated Price: {formatCurrency(result.finalPrice)}
+              </h3>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default HomePriceEstimator;
