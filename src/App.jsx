@@ -447,13 +447,13 @@ const HomePriceEstimator = () => {
 
         {!isTarget && (
           <div>
-            <label className="block text-sm font-medium mb-1">Listing Price</label>
+            <label className="block text-sm font-medium mb-1">Price</label>
             <input
               type="number"
               value={home.price}
               onChange={(e) => handleChange('price', e.target.value)}
               className="w-full p-3 border rounded-lg text-base"
-              placeholder="500000"
+              placeholder="Enter price"
             />
           </div>
         )}
@@ -462,99 +462,54 @@ const HomePriceEstimator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-3 sm:p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <Home className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" />
-            <h1 className="text-xl sm:text-3xl font-bold text-gray-800">Home Price Estimator</h1>
-          </div>
-          <p className="text-sm sm:text-base text-gray-600">Compare properties and get an accurate price estimate</p>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2"><Home size={28} /> Home Price Estimator</h1>
+
+      <div className="border rounded-lg p-4 mb-4">
+        <button onClick={() => toggleSection('target')} className="w-full text-left font-bold p-3 bg-gray-200 rounded-lg flex justify-between items-center">
+          Target Home {expandedSections.target ? <ChevronUp /> : <ChevronDown />}
+        </button>
+        {expandedSections.target && renderHomeInputs(targetHome, true)}
+      </div>
+
+      {compareHomes.map((home, idx) => (
+        <div key={idx} className="border rounded-lg p-4 mb-4">
+          <button onClick={() => toggleSection(`compare${idx}`)} className="w-full text-left font-bold p-3 bg-gray-200 rounded-lg flex justify-between items-center">
+            Compare Home {idx + 1} {expandedSections[`compare${idx}`] ? <ChevronUp /> : <ChevronDown />}
+          </button>
+          {expandedSections[`compare${idx}`] && renderHomeInputs(home, false, idx)}
         </div>
+      ))}
 
-        <div className="space-y-3 mb-4">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <button
-              onClick={() => toggleSection('target')}
-              className="w-full p-4 flex items-center justify-between bg-green-50"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <h2 className="text-base sm:text-lg font-bold text-gray-800">Target Home</h2>
-              </div>
-              {expandedSections.target ? <ChevronUp /> : <ChevronDown />}
-            </button>
-            {expandedSections.target && (
-              <div className="p-4">
-                {renderHomeInputs(targetHome, true)}
-              </div>
-            )}
-          </div>
+      <div className="text-center mt-6">
+        <button onClick={handleEstimate} className="bg-blue-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-blue-700">
+          {loading ? 'Estimating...' : <><Calculator className="inline mr-2" /> Estimate</>}
+        </button>
+      </div>
 
-          {compareHomes.map((home, idx) => (
-            <div key={idx} className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <button
-                onClick={() => toggleSection(`compare${idx}`)}
-                className="w-full p-4 flex items-center justify-between bg-blue-50"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <h2 className="text-base sm:text-lg font-bold text-gray-800">Compare Home {idx + 1}</h2>
-                </div>
-                {expandedSections[`compare${idx}`] ? <ChevronUp /> : <ChevronDown />}
-              </button>
-              {expandedSections[`compare${idx}`] && (
-                <div className="p-4">
-                  {renderHomeInputs(home, false, idx)}
-                </div>
-              )}
+      {result && (
+        <div id="results" className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Results</h2>
+          {result.comparisons.map((c, i) => (
+            <div key={i} className="mb-4 p-4 border rounded-lg">
+              <h3 className="font-bold mb-2">{c.label} ({c.address})</h3>
+              <p>Original Price: {formatCurrency(c.originalPrice)}</p>
+              <p>Adjusted Price: {formatCurrency(c.adjustedPrice)}</p>
+              <div className="mt-2">
+                {c.adjustments.map((adj, idx) => (
+                  <div key={idx} className="text-sm flex justify-between border-b py-1">
+                    <span>{adj.item}: {adj.detail}</span>
+                    <span>{formatCurrency(adj.adjustment)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
-        </div>
-
-        <div className="flex justify-center mb-6">
-          <button
-            onClick={handleEstimate}
-            disabled={loading}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg"
->
-  {loading ? 'Loading...' : 'Submit'}
-</button>
-        <div className="flex justify-center mb-6">
-          <button
-            onClick={handleEstimate}
-            disabled={loading}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg"
-          >
-            {loading ? 'Loading...' : 'Submit'}
-          </button>
-        </div>
-
-        {result && (
-          <div id="results" className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Results</h2>
-            {result.comparisons.map((comp, i) => (
-              <div key={i} className="mb-4 border-b pb-4 last:border-0">
-                <h3 className="font-semibold text-gray-700 mb-2">{comp.label}: {comp.address}</h3>
-                <p className="text-gray-600">Original Price: {formatCurrency(comp.originalPrice)}</p>
-                <p className="text-gray-600">Adjusted Price: {formatCurrency(comp.adjustedPrice)}</p>
-                <ul className="list-disc list-inside text-sm text-gray-600 mt-2">
-                  {comp.adjustments.map((adj, j) => (
-                    <li key={j}>
-                      <span className="font-medium">{adj.item}:</span> {adj.detail} → {adj.adjustment > 0 ? '+' : ''}{formatCurrency(adj.adjustment)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <div className="mt-4 p-4 bg-green-50 rounded-lg text-center">
-              <h3 className="text-lg font-bold text-green-700">
-                Final Estimated Price: {formatCurrency(result.finalPrice)}
-              </h3>
-            </div>
+          <div className="mt-4 p-4 bg-green-100 rounded-lg font-bold text-xl">
+            Final Estimated Price: {formatCurrency(result.finalPrice)}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
